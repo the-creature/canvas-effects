@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title></title>
+</head>
+<body style="background-color:#000" onload="javascript:init();">
+  <label style="color:white;">Total: </label>
+  <input type="text" id="total" value="200" style="width:100px;">
+  <input type="button" id="btn_view" value="View" onClick="javascript:view_animate();">
+  <canvas id="magic" width="335" height="384" style="margin: 80px auto;display: block;"></canvas>
+
+  <script>
+        var canvas    = document.getElementById('magic');
+        var context   = canvas.getContext('2d');
+        var imageObj  = new Image();
+        var moving    = 0;
+        var start     = 30;
+        var prev      = 30;
+        var direction = 1;
+
+          window.requestAnimFrame = (function(callback) {
+            return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+            function(callback)  {
+              window.setTimeout(callback, 1000 / 60);
+            };
+          })();
+
+          function init() {
+            imageObj.onload = function() {
+              context.drawImage(imageObj, 0, 0, 335, 384);
+            };
+
+            imageObj.src = 'beaker.png';
+          }
+
+          function view_animate() {
+            var time    = (new Date()).getTime();
+            var nlimit  = document.getElementById("total").value * 1;
+
+            if(nlimit < prev)
+              direction = -1;
+            else
+              direction = 1;
+
+          
+            moving  = Math.abs(nlimit - prev);
+            prev    = nlimit;
+
+            do_animate(time);
+          }
+
+          function do_animate(startTime) {
+              var time  = (new Date()).getTime() - startTime;
+              var speed = 50;
+
+              var y1    = 170 - time / 1000 * speed * direction - start;
+              var y2    = 500 - time / 1000 * speed * direction - start;
+
+              if(time / 1000 * speed >= moving) {
+                start   = prev;
+                return;
+              }
+
+              context.clearRect(0, 0, 335, 384);
+              context.beginPath();
+              context.arc(190,y1,220,220,Math.PI*1,true); // Outer circle
+
+              context.fillStyle = '#95999f';
+              context.fill();
+
+              context.globalCompositeOperation = "destination-atop";
+
+              context.beginPath();
+              context.arc(190,y2,220,10,Math.PI*1,true); // Outer circle
+
+              context.fillStyle = '#a6abb2';
+              context.fill();
+
+              context.drawImage(imageObj, 0, 0, 335, 384);
+              context.globalCompositeOperation = "destination-atop";
+
+              requestAnimFrame(function() {
+                do_animate(startTime);
+              });
+          }
+  </script>
+</body>
+</html>
